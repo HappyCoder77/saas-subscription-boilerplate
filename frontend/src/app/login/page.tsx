@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -10,6 +11,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { refreshUser } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,17 +30,18 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        Cookies.set("access_token", data.access_token, {
+        Cookies.set("access_token", data.access, {
           expires: 1,
           secure: true,
           sameSite: "strict",
         });
-        Cookies.set("refresh_token", data.refresh_token, {
+        Cookies.set("refresh_token", data.refresh, {
           expires: 7,
           secure: true,
           sameSite: "strict",
         });
 
+        refreshUser();
         console.log("Logging successful! Redirecting...");
         router.push("/dashboard");
       } else {
