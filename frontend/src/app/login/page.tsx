@@ -1,7 +1,8 @@
-"use client"; // Required for handling form state | Necesario para manejar estados
+"use client";
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -27,11 +28,19 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem("access", data.access);
-        localStorage.setItem("refresh", data.refresh);
+        Cookies.set("access_token", data.access_token, {
+          expires: 1,
+          secure: true,
+          sameSite: "strict",
+        });
+        Cookies.set("refresh_token", data.refresh_token, {
+          expires: 7,
+          secure: true,
+          sameSite: "strict",
+        });
 
         console.log("Logging successful! Redirecting...");
-        router.push("/");
+        router.push("/dashboard");
       } else {
         setError(data.detail || "Invalid email or password");
       }
